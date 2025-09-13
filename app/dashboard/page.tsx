@@ -134,6 +134,9 @@ export default function DashboardPage() {
             <Link href="/search" className="hover:underline text-muted-foreground">
               Search Recipes
             </Link>
+            <Link href="/pantry" className="hover:underline text-muted-foreground">
+              Pantry
+            </Link>
             <Link href="/dashboard" className="hover:underline font-semibold">
               My Recipes
             </Link>

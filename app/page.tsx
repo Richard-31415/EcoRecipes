@@ -17,6 +17,9 @@ export default function Home() {
             </Link>
           </div>
           <div className="flex items-center gap-4">
+            <Link href="/pantry" className="hover:underline text-muted-foreground">
+              Pantry
+            </Link>
             <Link href="/dashboard" className="hover:underline text-muted-foreground">
               My Recipes
             </Link>
