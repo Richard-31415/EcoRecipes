@@ -37,6 +37,7 @@ interface Recipe {
     suggestedIngredient: string;
     carbonSaving: number;
   };
+  highlights?: string[];
 }
 
 export default function RecipePage() {
@@ -63,6 +64,7 @@ export default function RecipePage() {
       // Call the real API through Supabase Edge Function
       const recipeData = await getRecipeDetails(parseInt(id));
       setRecipe(recipeData);
+      console.log(recipeData);
     } catch {
       setError("Failed to load recipe. Please try again.");
     } finally {
@@ -152,158 +154,231 @@ export default function RecipePage() {
   }
 
   return (
-    <main className="min-h-screen flex flex-col">
-      <nav className="w-full border-b border-b-foreground/10 h-16">
-        <div className="w-full max-w-6xl mx-auto flex justify-between items-center p-3 px-5 text-sm">
-          <div className="flex gap-5 items-center font-semibold">
-            <Link href={"/"} className="flex items-center gap-2">
-              <Leaf className="h-5 w-5 text-green-600" />
-              EcoRecipes
-            </Link>
-          </div>
-          <div className="flex items-center gap-4">
-            <Link href="/dashboard" className="hover:underline">My Recipes</Link>
-            <AuthButton />
-            <ThemeSwitcher />
-          </div>
-        </div>
-      </nav>
-
-      <div className="flex-1 max-w-6xl mx-auto w-full p-6">
-        <Link href="/search" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6">
-          <ArrowLeft className="h-4 w-4" />
-          Back to search
-        </Link>
-
-        <div className="grid lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-6">
-            <div>
-              <div className="aspect-video relative overflow-hidden rounded-lg mb-4">
-                {recipe.image ? (
-                  <Image
-                    src={recipe.image}
-                    alt={recipe.title}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 1024px) 100vw, 66vw"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                    <span className="text-gray-500">No Image Available</span>
+      <main className="min-h-screen flex flex-col">
+          <nav className="w-full border-b border-b-foreground/10 h-16">
+              <div className="w-full max-w-6xl mx-auto flex justify-between items-center p-3 px-5 text-sm">
+                  <div className="flex gap-5 items-center font-semibold">
+                      <Link href={"/"} className="flex items-center gap-2">
+                          <Leaf className="h-5 w-5 text-green-600" />
+                          EcoRecipes
+                      </Link>
                   </div>
-                )}
+                  <div className="flex items-center gap-4">
+                      <Link href="/dashboard" className="hover:underline">
+                          My Recipes
+                      </Link>
+                      <AuthButton />
+                      <ThemeSwitcher />
+                  </div>
               </div>
-              
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <h1 className="text-3xl font-bold mb-2">{recipe.title}</h1>
-                  <div className="flex items-center gap-4 text-muted-foreground">
-                    <div className="flex items-center gap-1">
-                      <Clock className="h-4 w-4" />
-                      {recipe.readyInMinutes} minutes
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Users className="h-4 w-4" />
-                      {recipe.servings} servings
-                    </div>
+          </nav>
+
+          <div className="flex-1 max-w-6xl mx-auto w-full p-6">
+              <Link
+                  href="/search"
+                  className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6"
+              >
+                  <ArrowLeft className="h-4 w-4" />
+                  Back to search
+              </Link>
+
+              <div className="grid lg:grid-cols-3 gap-8">
+                  <div className="lg:col-span-2 space-y-6">
+                      <div>
+                          <div className="aspect-video relative overflow-hidden rounded-lg mb-4">
+                              {recipe.image ? (
+                                  <Image
+                                      src={recipe.image}
+                                      alt={recipe.title}
+                                      fill
+                                      className="object-cover"
+                                      sizes="(max-width: 1024px) 100vw, 66vw"
+                                  />
+                              ) : (
+                                  <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                                      <span className="text-gray-500">
+                                          No Image Available
+                                      </span>
+                                  </div>
+                              )}
+                          </div>
+
+                          <div className="flex items-start justify-between mb-4">
+                              <div>
+                                  <h1 className="text-3xl font-bold mb-2">
+                                      {recipe.title}
+                                  </h1>
+                                  <div className="flex items-center gap-4 text-muted-foreground">
+                                      <div className="flex items-center gap-1">
+                                          <Clock className="h-4 w-4" />
+                                          {recipe.readyInMinutes} minutes
+                                      </div>
+                                      <div className="flex items-center gap-1">
+                                          <Users className="h-4 w-4" />
+                                          {recipe.servings} servings
+                                      </div>
+                                  </div>
+                              </div>
+                              <Button
+                                  onClick={handleSaveRecipe}
+                                  variant={isSaved ? "default" : "outline"}
+                                  className="flex items-center gap-2"
+                              >
+                                  <Heart
+                                      className={`h-4 w-4 ${
+                                          isSaved ? "fill-current" : ""
+                                      }`}
+                                  />
+                                  {isSaved ? "Saved" : "Save Recipe"}
+                              </Button>
+                          </div>
+                          {/* Highlights Box */}
+                          {recipe.highlights &&
+                              recipe.highlights.length > 0 && (
+                                  <div className="mb-4">
+                                      <div className="flex flex-wrap gap-2 bg-green-50 dark:bg-green-900/40 border border-green-200 dark:border-green-800 rounded-lg p-4">
+                                          {recipe.highlights.map(
+                                              (highlight, idx) => (
+                                                  <span
+                                                      key={idx}
+                                                      className="bg-green-100 dark:bg-green-800 text-green-900 dark:text-green-100 rounded px-3 py-1 text-sm font-medium"
+                                                  >
+                                                      {highlight}
+                                                  </span>
+                                              )
+                                          )}
+                                      </div>
+                                  </div>
+                              )}
+
+                          <p className="text-muted-foreground">
+                              {recipe.summary}
+                          </p>
+                      </div>
+
+                      <Card>
+                          <CardHeader>
+                              <CardTitle>Instructions</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                              <ol className="space-y-3">
+                                  {recipe.instructions.map(
+                                      (instruction, index) => (
+                                          <li
+                                              key={index}
+                                              className="flex gap-3"
+                                          >
+                                              <span className="flex-shrink-0 w-6 h-6 bg-green-100 dark:bg-green-900 text-green-600 rounded-full flex items-center justify-center text-sm font-semibold">
+                                                  {index + 1}
+                                              </span>
+                                              <span>{instruction}</span>
+                                          </li>
+                                      )
+                                  )}
+                              </ol>
+                          </CardContent>
+                      </Card>
                   </div>
-                </div>
-                <Button
-                  onClick={handleSaveRecipe}
-                  variant={isSaved ? "default" : "outline"}
-                  className="flex items-center gap-2"
-                >
-                  <Heart className={`h-4 w-4 ${isSaved ? "fill-current" : ""}`} />
-                  {isSaved ? "Saved" : "Save Recipe"}
-                </Button>
+
+                  <div className="space-y-6">
+                      <Card>
+                          <CardHeader>
+                              <CardTitle className="flex items-center gap-2">
+                                  <Leaf className="h-5 w-5 text-green-600" />
+                                  Carbon Impact
+                              </CardTitle>
+                          </CardHeader>
+                          <CardContent className="space-y-4">
+                              <div className="text-center">
+                                  <div className="text-3xl font-bold">
+                                      {recipe.totalCarbonScore} kg
+                                  </div>
+                                  <div className="text-sm text-muted-foreground">
+                                      CO₂ equivalent
+                                  </div>
+                                  <Badge
+                                      className={`mt-2 ${getCarbonBadgeColor(
+                                          recipe.carbonLevel
+                                      )}`}
+                                  >
+                                      {recipe.carbonLevel.toUpperCase()} IMPACT
+                                  </Badge>
+                              </div>
+
+                              {recipe.suggestion && (
+                                  <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
+                                      <div className="flex items-start gap-2">
+                                          <Lightbulb className="h-5 w-5 text-blue-600 mt-0.5" />
+                                          <div>
+                                              <h4 className="font-semibold text-blue-900 dark:text-blue-100">
+                                                  Smart Suggestion
+                                              </h4>
+                                              <p className="text-sm text-blue-800 dark:text-blue-200 mt-1">
+                                                  Replace{" "}
+                                                  <strong>
+                                                      {
+                                                          recipe.suggestion
+                                                              .originalIngredient
+                                                      }
+                                                  </strong>{" "}
+                                                  with{" "}
+                                                  <strong>
+                                                      {
+                                                          recipe.suggestion
+                                                              .suggestedIngredient
+                                                      }
+                                                  </strong>{" "}
+                                                  to save{" "}
+                                                  <strong>
+                                                      {
+                                                          recipe.suggestion
+                                                              .carbonSaving
+                                                      }{" "}
+                                                      kg CO₂
+                                                  </strong>
+                                                  !
+                                              </p>
+                                          </div>
+                                      </div>
+                                  </div>
+                              )}
+                          </CardContent>
+                      </Card>
+
+                      <Card>
+                          <CardHeader>
+                              <CardTitle>Ingredients</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                              <ul className="space-y-3">
+                                  {recipe.ingredients.map((ingredient) => (
+                                      <li
+                                          key={ingredient.id}
+                                          className="flex justify-between items-center"
+                                      >
+                                          <div>
+                                              <div className="font-medium">
+                                                  {ingredient.name}
+                                              </div>
+                                              <div className="text-sm text-muted-foreground">
+                                                  {ingredient.amount}{" "}
+                                                  {ingredient.unit}
+                                              </div>
+                                          </div>
+                                          <div className="text-right">
+                                              <div className="text-sm font-medium">
+                                                  {ingredient.carbonFootprint}{" "}
+                                                  kg CO₂
+                                              </div>
+                                          </div>
+                                      </li>
+                                  ))}
+                              </ul>
+                          </CardContent>
+                      </Card>
+                  </div>
               </div>
-
-              <p className="text-muted-foreground">{recipe.summary}</p>
-            </div>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Instructions</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ol className="space-y-3">
-                  {recipe.instructions.map((instruction, index) => (
-                    <li key={index} className="flex gap-3">
-                      <span className="flex-shrink-0 w-6 h-6 bg-green-100 dark:bg-green-900 text-green-600 rounded-full flex items-center justify-center text-sm font-semibold">
-                        {index + 1}
-                      </span>
-                      <span>{instruction}</span>
-                    </li>
-                  ))}
-                </ol>
-              </CardContent>
-            </Card>
           </div>
-
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Leaf className="h-5 w-5 text-green-600" />
-                  Carbon Impact
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="text-center">
-                  <div className="text-3xl font-bold">{recipe.totalCarbonScore} kg</div>
-                  <div className="text-sm text-muted-foreground">CO₂ equivalent</div>
-                  <Badge className={`mt-2 ${getCarbonBadgeColor(recipe.carbonLevel)}`}>
-                    {recipe.carbonLevel.toUpperCase()} IMPACT
-                  </Badge>
-                </div>
-
-                {recipe.suggestion && (
-                  <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
-                    <div className="flex items-start gap-2">
-                      <Lightbulb className="h-5 w-5 text-blue-600 mt-0.5" />
-                      <div>
-                        <h4 className="font-semibold text-blue-900 dark:text-blue-100">
-                          Smart Suggestion
-                        </h4>
-                        <p className="text-sm text-blue-800 dark:text-blue-200 mt-1">
-                          Replace <strong>{recipe.suggestion.originalIngredient}</strong> with{" "}
-                          <strong>{recipe.suggestion.suggestedIngredient}</strong> to save{" "}
-                          <strong>{recipe.suggestion.carbonSaving} kg CO₂</strong>!
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Ingredients</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-3">
-                  {recipe.ingredients.map((ingredient) => (
-                    <li key={ingredient.id} className="flex justify-between items-center">
-                      <div>
-                        <div className="font-medium">{ingredient.name}</div>
-                        <div className="text-sm text-muted-foreground">
-                          {ingredient.amount} {ingredient.unit}
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-sm font-medium">
-                          {ingredient.carbonFootprint} kg CO₂
-                        </div>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </div>
-    </main>
+      </main>
   );
 }

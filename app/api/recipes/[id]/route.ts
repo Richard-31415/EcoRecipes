@@ -18,7 +18,7 @@ function calculateCarbonFootprint(ingredients: any[]) {
   let totalCarbon = 0;
   let highestCarbonIngredient: { name: string; carbon: number } | null = null;
   
-  const processedIngredients = ingredients.map((ingredient) => {
+    const processedIngredients = ingredients.map((ingredient) => {
     const name = ingredient.name?.toLowerCase() || ingredient.originalName?.toLowerCase() || 'unknown';
     const amount = ingredient.amount || 1;
     const unit = ingredient.unit || 'piece';
@@ -74,6 +74,54 @@ function calculateCarbonFootprint(ingredients: any[]) {
   };
 }
 
+
+
+async function generateRecipeHighlightsWithPerplexity(
+    description: string
+): Promise<string[]> {
+    const apiKey = process.env.PERPLEXITY_API_KEY;
+    if (!apiKey) return [];
+
+    const prompt = `
+Given the following recipe description, generate up to three short highlights about the recipe. 
+Some ideas include: high in protein, easy to prepare, X number of ingredients, vegan, gluten-free, etc.
+Return the highlights as a JSON array of strings. Return in plain text. Do not use a code block.
+
+Description:
+${description}
+`;
+
+    const response = await fetch("https://api.perplexity.ai/chat/completions", {
+        method: "POST",
+        headers: {
+            Authorization: `Bearer ${apiKey}`,
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            model: "sonar-pro",
+            messages: [{ role: "user", content: prompt }],
+            max_tokens: 100,
+            temperature: 0.5,
+        }),
+    });
+
+    const data = await response.json();
+
+    console.log("running")
+    try {
+        const text = data.choices?.[0]?.message?.content || "[]";
+        console.log(text)
+        const highlights = JSON.parse(text);
+            console.log(highlights);
+        if (Array.isArray(highlights)) return highlights;
+        return [];
+    } catch(e) {
+        console.error(e)
+        return [];
+    }
+}
+
+
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -125,6 +173,10 @@ export async function GET(
 
     const instructions = instructionsData[0]?.steps?.map((step: any) => step.step) || [];
 
+    const highlights = await generateRecipeHighlightsWithPerplexity(
+         recipeData.summary?.replace(/<[^>]*>/g, "") || ""
+     );
+
     return NextResponse.json({
       id: recipeData.id,
       title: recipeData.title,
@@ -136,7 +188,8 @@ export async function GET(
       instructions,
       totalCarbonScore: totalCarbon,
       carbonLevel,
-      suggestion
+      suggestion,
+      highlights
     });
 
   } catch (error) {
