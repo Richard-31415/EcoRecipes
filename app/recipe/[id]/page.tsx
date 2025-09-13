@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { AuthButton } from "@/components/auth-button-mock";
+import { SmartAuthButton } from "@/components/smart-auth-button";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -115,8 +115,9 @@ export default function RecipePage() {
               </Link>
             </div>
             <div className="flex items-center gap-4">
+              <Link href="/pantry" className="hover:underline text-muted-foreground">Pantry</Link>
               <Link href="/dashboard" className="hover:underline text-muted-foreground">My Recipes</Link>
-              <AuthButton />
+              <SmartAuthButton />
               <ThemeSwitcher />
             </div>
           </div>
@@ -140,8 +141,9 @@ export default function RecipePage() {
               </Link>
             </div>
             <div className="flex items-center gap-4">
+              <Link href="/pantry" className="hover:underline text-muted-foreground">Pantry</Link>
               <Link href="/dashboard" className="hover:underline text-muted-foreground">My Recipes</Link>
-              <AuthButton />
+              <SmartAuthButton />
               <ThemeSwitcher />
             </div>
           </div>
@@ -154,24 +156,23 @@ export default function RecipePage() {
   }
 
   return (
-      <main className="min-h-screen flex flex-col">
-          <nav className="w-full border-b border-b-foreground/10 h-16">
-              <div className="w-full max-w-6xl mx-auto flex justify-between items-center p-3 px-5 text-sm">
-                  <div className="flex gap-5 items-center font-semibold">
-                      <Link href={"/"} className="flex items-center gap-2">
-                          <Leaf className="h-5 w-5 text-green-600" />
-                          EcoRecipes
-                      </Link>
-                  </div>
-                  <div className="flex items-center gap-4">
-                      <Link href="/dashboard" className="hover:underline">
-                          My Recipes
-                      </Link>
-                      <AuthButton />
-                      <ThemeSwitcher />
-                  </div>
-              </div>
-          </nav>
+    <main className="min-h-screen flex flex-col">
+      <nav className="w-full border-b border-b-foreground/10 h-16">
+        <div className="w-full max-w-6xl mx-auto flex justify-between items-center p-3 px-5 text-sm">
+          <div className="flex gap-5 items-center font-semibold">
+            <Link href={"/"} className="flex items-center gap-2">
+              <Leaf className="h-5 w-5 text-green-600" />
+              EcoRecipes
+            </Link>
+          </div>
+          <div className="flex items-center gap-4">
+            <Link href="/pantry" className="hover:underline text-muted-foreground">Pantry</Link>
+            <Link href="/dashboard" className="hover:underline">My Recipes</Link>
+            <SmartAuthButton />
+            <ThemeSwitcher />
+          </div>
+        </div>
+      </nav>
 
           <div className="flex-1 max-w-6xl mx-auto w-full p-6">
               <Link

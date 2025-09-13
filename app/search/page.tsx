@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { AuthButton } from "@/components/auth-button-mock";
+import { SmartAuthButton } from "@/components/smart-auth-button";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Search, Leaf, Clock, Users } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Search, Leaf, Clock, Users, ShoppingBasket, ChefHat } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -18,10 +19,12 @@ import { searchRecipes as apiSearchRecipes, type Recipe } from "@/lib/api/secure
 export default function SearchPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
+  const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || searchParams.get("ingredients") || "");
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const isPantrySearch = searchParams.get("pantry") === "true";
+  const isRecipeCreation = searchParams.get("recipe") === "create";
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,7 +34,7 @@ export default function SearchPage() {
   };
 
   useEffect(() => {
-    const query = searchParams.get("q");
+    const query = searchParams.get("q") || searchParams.get("ingredients");
     if (query) {
       setSearchQuery(query);
       searchRecipes();
@@ -42,7 +45,7 @@ export default function SearchPage() {
     setLoading(true);
     setError("");
     
-    const query = searchParams.get("q");
+    const query = searchParams.get("q") || searchParams.get("ingredients");
     if (!query) {
       setLoading(false);
       return;
@@ -70,10 +73,11 @@ export default function SearchPage() {
             </Link>
           </div>
           <div className="flex items-center gap-4">
+            <Link href="/pantry" className="hover:underline text-muted-foreground">Pantry</Link>
             <Link href="/dashboard" className="hover:underline text-muted-foreground">
               My Recipes
             </Link>
-            <AuthButton />
+            <SmartAuthButton />
             <ThemeSwitcher />
           </div>
         </div>
@@ -113,9 +117,37 @@ export default function SearchPage() {
 
         {!loading && !error && recipes.length > 0 && (
           <div>
-            <h2 className="text-2xl font-bold mb-6">
-              Search results for &ldquo;{searchParams.get("q")}&rdquo;
-            </h2>
+            {isPantrySearch ? (
+              <div className="mb-6">
+                <div className="flex items-center gap-2 mb-2">
+                  {isRecipeCreation ? (
+                    <>
+                      <ChefHat className="h-6 w-6 text-green-600" />
+                      <h2 className="text-2xl font-bold">Create Recipe with Selected Ingredients</h2>
+                    </>
+                  ) : (
+                    <>
+                      <ShoppingBasket className="h-6 w-6 text-green-600" />
+                      <h2 className="text-2xl font-bold">Recipes from your Pantry</h2>
+                    </>
+                  )}
+                </div>
+                <Badge variant="secondary" className="mb-4">
+                  Using ingredients: {searchParams.get("ingredients")}
+                </Badge>
+                {isRecipeCreation && (
+                  <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-lg mb-4">
+                    <p className="text-blue-800 dark:text-blue-200 text-sm">
+                      💡 These are suggested recipes using your selected pantry ingredients. Choose one that matches what you want to make!
+                    </p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <h2 className="text-2xl font-bold mb-6">
+                Search results for &ldquo;{searchParams.get("q")}&rdquo;
+              </h2>
+            )}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {recipes.map((recipe) => (
                 <Link key={recipe.id} href={`/recipe/${recipe.id}`}>
@@ -157,10 +189,20 @@ export default function SearchPage() {
           </div>
         )}
 
-        {!loading && !error && recipes.length === 0 && searchParams.get("q") && (
+        {!loading && !error && recipes.length === 0 && (searchParams.get("q") || searchParams.get("ingredients")) && (
           <div className="text-center py-12">
-            <p className="text-muted-foreground">No recipes found for &ldquo;{searchParams.get("q")}&rdquo;</p>
-            <p className="text-sm text-muted-foreground mt-2">Try searching for something else!</p>
+            {isPantrySearch ? (
+              <>
+                <ShoppingBasket className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                <p className="text-muted-foreground">No recipes found using your pantry ingredients</p>
+                <p className="text-sm text-muted-foreground mt-2">Try adding more ingredients to your pantry or search for something else!</p>
+              </>
+            ) : (
+              <>
+                <p className="text-muted-foreground">No recipes found for &ldquo;{searchParams.get("q")}&rdquo;</p>
+                <p className="text-sm text-muted-foreground mt-2">Try searching for something else!</p>
+              </>
+            )}
           </div>
         )}
       </div>
