@@ -1,4 +1,4 @@
-import { AuthButton } from "@/components/auth-button-mock";
+import { SmartAuthButton } from "@/components/smart-auth-button";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { SearchForm } from "@/components/search-form";
 import { Search, Leaf } from "lucide-react";
@@ -20,7 +20,7 @@ export default function Home() {
             <Link href="/dashboard" className="hover:underline text-muted-foreground">
               My Recipes
             </Link>
-            <AuthButton />
+            <SmartAuthButton />
             <ThemeSwitcher />
           </div>
         </div>

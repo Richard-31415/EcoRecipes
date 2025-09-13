@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { AuthButton } from "@/components/auth-button-mock";
+import { SmartAuthButton } from "@/components/smart-auth-button";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -114,7 +114,7 @@ export default function RecipePage() {
             </div>
             <div className="flex items-center gap-4">
               <Link href="/dashboard" className="hover:underline text-muted-foreground">My Recipes</Link>
-              <AuthButton />
+              <SmartAuthButton />
               <ThemeSwitcher />
             </div>
           </div>
@@ -139,7 +139,7 @@ export default function RecipePage() {
             </div>
             <div className="flex items-center gap-4">
               <Link href="/dashboard" className="hover:underline text-muted-foreground">My Recipes</Link>
-              <AuthButton />
+              <SmartAuthButton />
               <ThemeSwitcher />
             </div>
           </div>
@@ -163,7 +163,7 @@ export default function RecipePage() {
           </div>
           <div className="flex items-center gap-4">
             <Link href="/dashboard" className="hover:underline">My Recipes</Link>
-            <AuthButton />
+            <SmartAuthButton />
             <ThemeSwitcher />
           </div>
         </div>

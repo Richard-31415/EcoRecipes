@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { AuthButton } from "@/components/auth-button-mock";
+import { SmartAuthButton } from "@/components/smart-auth-button";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -73,7 +73,7 @@ export default function SearchPage() {
             <Link href="/dashboard" className="hover:underline text-muted-foreground">
               My Recipes
             </Link>
-            <AuthButton />
+            <SmartAuthButton />
             <ThemeSwitcher />
           </div>
         </div>
